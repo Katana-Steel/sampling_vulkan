@@ -1,3 +1,12 @@
+/* 
+  Vulkan Device Enumeration
+  by Rene Kjellerup (c) 2017
+  <rk.katana.steel@gmail.com>
+
+  this work is publish under GNU General Public License version 3
+  or later. For licensening details see https://www.gnu.org/licenses/gpl.html
+
+*/
 #include <string>
 #include <iostream>
 #include <vector>
