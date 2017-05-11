@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <memory>
 #include <vulkan/vk_sdk_platform.h>
 #include <vulkan/vulkan.h>
 
@@ -29,7 +30,36 @@ struct Info
     
 };
 
-void init_instance(Info &i)
+struct layerProperties {
+    VkLayerProperties prop;
+    std::vector<VkExtensionProperties> extentions;
+};
+
+struct VulkanLayers {
+    std::vector<layerProperties> properties;
+    std::vector<const char*> c_names;
+    uint32_t count;
+};
+
+void init_layers(VulkanLayers &layers)
+{
+    vkEnumerateInstanceLayerProperties(&layers.count, nullptr);
+    if (layers.count == 0)
+        return;
+    auto props = std::make_unique<VkLayerProperties[]>(layers.count);
+    vkEnumerateInstanceLayerProperties(&layers.count, props.get());
+
+    for( uint32_t i = 0; i < layers.count; i++)
+    {
+        layerProperties prop{};
+        prop.prop = props[i];
+        layers.properties.push_back(prop);
+        layers.c_names.push_back(prop.prop.layerName);
+    }
+    
+}
+
+void init_instance(VkInstance &i, const VulkanLayers &layers)
 {
     const char name[] = "katana_vk1";
     VkApplicationInfo app_info = {};
@@ -46,13 +76,12 @@ void init_instance(Info &i)
     inst_info.pNext = nullptr;
     inst_info.flags = 0;
     inst_info.pApplicationInfo = &app_info;
-    inst_info.enabledLayerCount = 0;
-    inst_info.ppEnabledLayerNames = nullptr;
+    inst_info.enabledLayerCount = layers.count;
+    inst_info.ppEnabledLayerNames = (layers.count) ? layers.c_names.data(): nullptr;
     inst_info.enabledExtensionCount = 0;
     inst_info.ppEnabledExtensionNames = nullptr;
 
-    VkResult res = vkCreateInstance(&inst_info, NULL, &i.inst);
-
+    VkResult res = vkCreateInstance(&inst_info, nullptr, &i);
 }
 
 void fillInGpus(Info &i, uint32_t count)
@@ -80,7 +109,9 @@ void fillInGpus(Info &i, uint32_t count)
 int main(int,char**)
 {
     Info info{};
-    init_instance(info);
+    VulkanLayers layers{};
+    init_layers(layers);
+    init_instance(info.inst, layers);
 
     uint32_t gpu_count=0;
     VkResult res = vkEnumeratePhysicalDevices(info.inst, &gpu_count, nullptr);
@@ -101,7 +132,11 @@ int main(int,char**)
         }
     }
 
-    
+    std::cout << "found " << layers.count << " Vulkan Layers\n";
+    for(auto layer: layers.c_names)
+    {
+        std::cout << "\t" << layer << '\n';
+    }
 
     vkDestroyInstance(info.inst, NULL);
     return 0;
