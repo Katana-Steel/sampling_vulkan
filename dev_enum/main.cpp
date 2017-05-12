@@ -46,15 +46,15 @@ void init_layers(VulkanLayers &layers)
     vkEnumerateInstanceLayerProperties(&layers.count, nullptr);
     if (layers.count == 0)
         return;
-    auto props = std::make_unique<VkLayerProperties[]>(layers.count);
-    vkEnumerateInstanceLayerProperties(&layers.count, props.get());
+    std::vector<VkLayerProperties> vkprop(layers.count);
+    vkEnumerateInstanceLayerProperties(&layers.count, vkprop.data());
 
-    for( uint32_t i = 0; i < layers.count; i++)
+    for( auto p: vkprop)
     {
         layerProperties prop{};
-        prop.prop = props[i];
+        prop.prop = p;
         layers.properties.push_back(prop);
-        layers.c_names.push_back(prop.prop.layerName);
+        layers.c_names.push_back(p.layerName);
     }
     
 }
