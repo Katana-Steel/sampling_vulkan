@@ -49,13 +49,14 @@ void init_layers(VulkanLayers &layers)
     std::vector<VkLayerProperties> vkprop(layers.count);
     vkEnumerateInstanceLayerProperties(&layers.count, vkprop.data());
 
-    for( auto p: vkprop)
+    for( auto& p: vkprop)
     {
         layerProperties prop{};
         prop.prop = p;
         layers.properties.push_back(prop);
-        layers.c_names.push_back(p.layerName);
     }
+    for ( auto& n: layers.properties)
+        layers.c_names.push_back(n.prop.layerName);
     
 }
 
@@ -91,7 +92,7 @@ void fillInGpus(Info &i, uint32_t count)
     std::vector<VkPhysicalDevice> gpus;
     gpus.resize(count);
     vkEnumeratePhysicalDevices(i.inst, &count, gpus.data());
-    for (VkPhysicalDevice g : gpus)
+    for (auto& g : gpus)
     {
         GpuInfo ginfo{};
         ginfo.g = g;
@@ -117,23 +118,23 @@ int main(int,char**)
     VkResult res = vkEnumeratePhysicalDevices(info.inst, &gpu_count, nullptr);
     std::cout << "found " << gpu_count << " vulkan enabled gpus\n";
     fillInGpus(info, gpu_count);
-    for (GpuInfo i : info.gpus_info)
+    for (auto& i : info.gpus_info)
     {
         std::cout << i.props.deviceName << "\n";
-        for (auto qp : i.queue_props) {
+        for (auto& qp : i.queue_props) {
             if (qp.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-              std::cout << " Found Graphics queue\n";
+              std::cout << "\tFound Graphics queue\n";
             if (qp.queueFlags & VK_QUEUE_COMPUTE_BIT)
-              std::cout << " Found Compute queue\n";
+              std::cout << "\tFound Compute queue\n";
             if (qp.queueFlags & VK_QUEUE_TRANSFER_BIT)
-              std::cout << " Found Transfer queue\n";
+              std::cout << "\tFound Transfer queue\n";
             if (qp.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT)
-              std::cout << " Found Sparse Binding queue\n";
+              std::cout << "\tFound Sparse Binding queue\n";
         }
     }
 
     std::cout << "found " << layers.count << " Vulkan Layers\n";
-    for(auto layer: layers.c_names)
+    for(auto& layer: layers.c_names)
     {
         std::cout << "\t" << layer << '\n';
     }
