@@ -1,4 +1,4 @@
-/* 
+/*
   Vulkan Device Enumeration
   by Rene Kjellerup (c) 2017
   <rk.katana.steel@gmail.com>
@@ -23,11 +23,10 @@ struct GpuInfo
     uint32_t queue_fam_count;
 };
 
-struct Info 
+struct Info
 {
     VkInstance inst;
     std::vector<GpuInfo> gpus_info;
-    
 };
 
 struct layerProperties {
@@ -57,7 +56,6 @@ void init_layers(VulkanLayers &layers)
     }
     for ( auto& n: layers.properties)
         layers.c_names.push_back(n.prop.layerName);
-    
 }
 
 void init_instance(VkInstance &i, const VulkanLayers &layers)
