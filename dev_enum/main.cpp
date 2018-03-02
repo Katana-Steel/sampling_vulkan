@@ -118,16 +118,37 @@ int main(int,char**)
     fillInGpus(info, gpu_count);
     for (auto& i : info.gpus_info)
     {
-        std::cout << i.props.deviceName << "\n";
+        std::cout << i.props.deviceName << " type: ";
+        switch(i.props.deviceType){
+        case VK_PHYSICAL_DEVICE_TYPE_OTHER:
+            std::cout << "other";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
+            std::cout << "igpu";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
+            std::cout << "gpu";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+            std::cout << "vgpu";
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+            std::cout << "cpu";
+            break;
+        default:
+            std::cout << "unknown";
+            break;
+        }
+        std::cout << '\n';
         for (auto& qp : i.queue_props) {
             if (qp.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-              std::cout << "\tFound Graphics queue\n";
+              std::cout << "\tFound Graphics queue w/ " << qp.queueCount << " queue(s)\n";
             if (qp.queueFlags & VK_QUEUE_COMPUTE_BIT)
-              std::cout << "\tFound Compute queue\n";
+              std::cout << "\tFound Compute queue w/ " << qp.queueCount << " queue(s)\n";
             if (qp.queueFlags & VK_QUEUE_TRANSFER_BIT)
-              std::cout << "\tFound Transfer queue\n";
+              std::cout << "\tFound Transfer queue w/ " << qp.queueCount << " queue(s)\n";
             if (qp.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT)
-              std::cout << "\tFound Sparse Binding queue\n";
+              std::cout << "\tFound Sparse Binding queue w/ " << qp.queueCount << " queue(s)\n";
         }
     }
 
