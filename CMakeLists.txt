@@ -1,7 +1,4 @@
-project(devEnum)
+project(vulkan_tests)
+cmake_minimum_required(VERSION 3.1)
 
-add_executable(${PROJECT_NAME}
-	dev_enum/main.cpp)
-
-target_link_libraries(${PROJECT_NAME}
-	vulkan)
+add_subdirectory(dev_enum)

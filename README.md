@@ -5,9 +5,10 @@ then it should be as simple as:
 * g++ -c dev_enum/main.cpp
 * g++ -o devEnum main.o -lvulkan
 * ./devEnum
-or
+or with cmake
 * mkdir build
-* cd build; cmake ../
+* cd build
+* cmake ../
 * make
-* ./devEnum
+* dev_enum/devEnum
 have fun...
