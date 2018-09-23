@@ -40,6 +40,16 @@ struct VulkanLayers {
     uint32_t count;
 };
 
+void find_extensions(std::vector<VkExtensionProperties> &extensions)
+{
+    uint32_t count;
+    vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+    if ( count == 0 )
+        return;
+    extensions.resize(count);
+    vkEnumerateInstanceExtensionProperties(nullptr, &count, extensions.data());
+}
+
 void init_layers(VulkanLayers &layers)
 {
     vkEnumerateInstanceLayerProperties(&layers.count, nullptr);
@@ -109,6 +119,8 @@ int main(int,char**)
 {
     Info info{};
     VulkanLayers layers{};
+    std::vector<VkExtensionProperties> ext;
+    find_extensions(ext);
     init_layers(layers);
     init_instance(info.inst, layers);
 
@@ -158,6 +170,9 @@ int main(int,char**)
         std::cout << "\t" << layer << '\n';
     }
 
+    std::cout << "found " << ext.size() << " Vulkan extension on this platform\n";
+    for(auto &e : ext)
+        std::cout << "\t" << e.extensionName << '\n';
     vkDestroyInstance(info.inst, NULL);
     return 0;
 }
