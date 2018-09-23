@@ -31,7 +31,8 @@ struct Info
 
 struct layerProperties {
     VkLayerProperties prop;
-    std::vector<VkExtensionProperties> extentions;
+    std::vector<VkExtensionProperties> extensions;
+    const char *name;
 };
 
 struct VulkanLayers {
@@ -40,14 +41,14 @@ struct VulkanLayers {
     uint32_t count;
 };
 
-void find_extensions(std::vector<VkExtensionProperties> &extensions)
+void find_extensions(std::vector<VkExtensionProperties> &extensions, const char *name=nullptr)
 {
     uint32_t count;
-    vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
+    vkEnumerateInstanceExtensionProperties(name, &count, nullptr);
     if ( count == 0 )
         return;
     extensions.resize(count);
-    vkEnumerateInstanceExtensionProperties(nullptr, &count, extensions.data());
+    vkEnumerateInstanceExtensionProperties(name, &count, extensions.data());
 }
 
 void init_layers(VulkanLayers &layers)
@@ -64,8 +65,11 @@ void init_layers(VulkanLayers &layers)
         prop.prop = p;
         layers.properties.push_back(prop);
     }
-    for ( auto& n: layers.properties)
+    for ( auto& n: layers.properties) {
+        n.name = n.prop.layerName;
+        find_extensions(n.extensions, n.name);
         layers.c_names.push_back(n.prop.layerName);
+    }
 }
 
 void init_instance(VkInstance &i, const VulkanLayers &layers)
@@ -165,9 +169,11 @@ int main(int,char**)
     }
 
     std::cout << "found " << layers.count << " Vulkan Layers\n";
-    for(auto& layer: layers.c_names)
+    for(auto& layer: layers.properties)
     {
-        std::cout << "\t" << layer << '\n';
+        std::cout << "\t" << layer.name << '\n';
+        for(auto &e: layer.extensions)
+            std::cout << "\t\t" << e.extensionName << '\n';
     }
 
     std::cout << "found " << ext.size() << " Vulkan extension on this platform\n";
