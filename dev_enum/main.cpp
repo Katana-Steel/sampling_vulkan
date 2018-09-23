@@ -109,13 +109,16 @@ void fillInGpus(Info &i, uint32_t count)
         GpuInfo ginfo{};
         ginfo.g = g;
         /* getting and saving available HW queues */
-        vkGetPhysicalDeviceQueueFamilyProperties(g, &ginfo.queue_fam_count, nullptr);
-        ginfo.queue_props.resize(ginfo.queue_fam_count);
-        vkGetPhysicalDeviceQueueFamilyProperties(g, &ginfo.queue_fam_count, ginfo.queue_props.data());
-
-        vkGetPhysicalDeviceProperties(g, &ginfo.props);
-        vkGetPhysicalDeviceMemoryProperties(g, &ginfo.mem);
         i.gpus_info.push_back(ginfo);
+    }
+    for (auto &gpu: i.gpus_info)
+    {
+        vkGetPhysicalDeviceQueueFamilyProperties(gpu.g, &gpu.queue_fam_count, nullptr);
+        gpu.queue_props.resize(gpu.queue_fam_count);
+        vkGetPhysicalDeviceQueueFamilyProperties(gpu.g, &gpu.queue_fam_count, gpu.queue_props.data());
+
+        vkGetPhysicalDeviceProperties(gpu.g, &gpu.props);
+        vkGetPhysicalDeviceMemoryProperties(gpu.g, &gpu.mem);
     }
 }
 
