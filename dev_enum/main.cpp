@@ -23,12 +23,6 @@ struct GpuInfo
     uint32_t queue_fam_count;
 };
 
-struct Info
-{
-    VkInstance inst;
-    std::vector<GpuInfo> gpus_info;
-};
-
 struct layerProperties {
     VkLayerProperties prop;
     std::vector<VkExtensionProperties> extensions;
@@ -39,6 +33,14 @@ struct VulkanLayers {
     std::vector<layerProperties> properties;
     std::vector<const char*> c_names;
     uint32_t count;
+};
+
+struct Info
+{
+    VkInstance inst;
+    std::vector<GpuInfo> gpus_info;
+    std::vector<VkExtensionProperties> ext;
+    VulkanLayers layers;
 };
 
 void find_extensions(std::vector<VkExtensionProperties> &extensions, const char *name=nullptr)
@@ -125,11 +127,9 @@ void fillInGpus(Info &i, uint32_t count)
 int main(int,char**)
 {
     Info info{};
-    VulkanLayers layers{};
-    std::vector<VkExtensionProperties> ext;
-    find_extensions(ext);
-    init_layers(layers);
-    init_instance(info.inst, layers);
+    find_extensions(info.ext);
+    init_layers(info.layers);
+    init_instance(info.inst, info.layers);
 
     uint32_t gpu_count=0;
     VkResult res = vkEnumeratePhysicalDevices(info.inst, &gpu_count, nullptr);
@@ -171,16 +171,16 @@ int main(int,char**)
         }
     }
 
-    std::cout << "found " << layers.count << " Vulkan Layers\n";
-    for(auto& layer: layers.properties)
+    std::cout << "found " << info.layers.count << " Vulkan Layers\n";
+    for(auto& layer: info.layers.properties)
     {
         std::cout << "\t" << layer.name << '\n';
         for(auto &e: layer.extensions)
             std::cout << "\t\t" << e.extensionName << '\n';
     }
 
-    std::cout << "found " << ext.size() << " Vulkan extension on this platform\n";
-    for(auto &e : ext)
+    std::cout << "found " << info.ext.size() << " Vulkan extension on this platform\n";
+    for(auto &e : info.ext)
         std::cout << "\t" << e.extensionName << '\n';
     vkDestroyInstance(info.inst, NULL);
     return 0;
