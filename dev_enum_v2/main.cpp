@@ -56,8 +56,9 @@ auto fill_info(void) -> vk::UniqueInstance
 
 void printGpu(const GpuInfo &gpu)
 {
-        std::cout << gpu.props.deviceName << " type: ";
-        switch(gpu.props.deviceType){
+    std::cout << gpu.props.deviceName << " type: '";
+    std::cout << "(0x" << std::hex << (uintptr_t)(&gpu.g) << std::dec << ")' ";
+    switch(gpu.props.deviceType){
         case vk::PhysicalDeviceType::eOther:
             std::cout << "other";
             break;
@@ -76,20 +77,20 @@ void printGpu(const GpuInfo &gpu)
         default:
             std::cout << "unknown";
             break;
-        }
-        std::cout << '\n';
-        for (auto& qp : gpu.queue_props) {
-            if (qp.queueFlags & vk::QueueFlagBits::eGraphics)
-              std::cout << "\tFound Graphics queue w/ " << qp.queueCount << " queue(s)\n";
-            if (qp.queueFlags & vk::QueueFlagBits::eCompute)
-              std::cout << "\tFound Compute queue w/ " << qp.queueCount << " queue(s)\n";
-            if (qp.queueFlags & vk::QueueFlagBits::eTransfer)
-              std::cout << "\tFound Transfer queue w/ " << qp.queueCount << " queue(s)\n";
-            if (qp.queueFlags & vk::QueueFlagBits::eSparseBinding)
-              std::cout << "\tFound Sparse Binding queue w/ " << qp.queueCount << " queue(s)\n";
-            if (qp.queueFlags & vk::QueueFlagBits::eProtected)
-              std::cout << "\tFound Protected queue w/ " << qp.queueCount << " queue(s)\n";
-        }
+    }
+    std::cout << '\n';
+    for (auto& qp : gpu.queue_props) {
+        if (qp.queueFlags & vk::QueueFlagBits::eGraphics)
+            std::cout << "\tFound Graphics queue w/ " << qp.queueCount << " queue(s)\n";
+        if (qp.queueFlags & vk::QueueFlagBits::eCompute)
+            std::cout << "\tFound Compute queue w/ " << qp.queueCount << " queue(s)\n";
+        if (qp.queueFlags & vk::QueueFlagBits::eTransfer)
+            std::cout << "\tFound Transfer queue w/ " << qp.queueCount << " queue(s)\n";
+        if (qp.queueFlags & vk::QueueFlagBits::eSparseBinding)
+            std::cout << "\tFound Sparse Binding queue w/ " << qp.queueCount << " queue(s)\n";
+        if (qp.queueFlags & vk::QueueFlagBits::eProtected)
+            std::cout << "\tFound Protected queue w/ " << qp.queueCount << " queue(s)\n";
+    }
 }
 
 void
