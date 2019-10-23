@@ -1,3 +1,4 @@
+#include "vk_xcb.hpp"
 #include <vulkan/vulkan.hpp>
 #include <vector>
 #include <iostream>
@@ -47,10 +48,10 @@ void init_layers(VulkanLayers &layers)
     }
 }
 
-auto fill_info(void) -> vk::UniqueInstance
+auto fill_info(const std::vector<vk::ExtensionProperties> &ext) -> vk::UniqueInstance
 {
     vk::ApplicationInfo appInfo{"devEnum", 1, "vk++Tut", 1, VK_API_VERSION_1_1};
-    vk::InstanceCreateInfo createInfo{{}, &appInfo};
+    vk::InstanceCreateInfo createInfo{{{}, ext}, &appInfo};
     return vk::createInstanceUnique(createInfo);
 }
 
@@ -96,24 +97,21 @@ void printGpu(const GpuInfo &gpu)
 void
 fillGpus(const vk::UniqueInstance &i)
 {
-    for (auto &g : i->enumeratePhysicalDevices())
+    for (auto &&g : i->enumeratePhysicalDevices())
     {
-        GpuInfo info{};
-        info.g = g;
-        info.queue_props = g.getQueueFamilyProperties();
-        info.props = g.getProperties();
-        info.mem = g.getMemoryProperties();
-        printGpu(info);
+        printGpu({g, g.getMemoryProperties(), g.getProperties(), g.getQueueFamilyProperties()});
     }
 }
+
 int main(int p1, char **p2)
 {
     Info info;
     try {
         info.ext = vk::enumerateInstanceExtensionProperties();
         init_layers(info.layers);
-        info.inst = fill_info();
+        info.inst = fill_info(info.ext);
         fillGpus(info.inst);
+        auto win = create_default_window(150, 150);
     }
     catch(vk::SystemError err)
     {
